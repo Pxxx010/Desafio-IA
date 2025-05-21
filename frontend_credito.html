@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Classificação de Crédito</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 40px;
+            color: #333;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        form {
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        input, select {
+            margin-top: 5px;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #resultado {
+            margin-top: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 1.2em;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        #resultado.aprovado {
+            background-color: #e0f7e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        #resultado.reprovado {
+            background-color: #fdecea;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+    </style>
+</head>
+<body>
+    <h2>Simulador de Aprovação de Crédito</h2>
+    <form id="formulario">
+        <label>Trabalho:
+            <select name="trabalho" required>
+                <option value="" disabled selected>Selecione</option>
+                <option value="Funcionário de Empresa Privada">Funcionário de Empresa Privada</option>
+                <option value="Funcionário Público">Funcionário Público</option>
+                <option value="Profissional Liberal">Profissional Liberal</option>
+                <option value="Empresário/Autônomo">Empresário/Autônomo</option>
+                <option value="Aposentado/Pensionista">Aposentado/Pensionista</option>
+                <option value="Desempregado">Desempregado</option>
+                <option value="Estudante">Estudante</option>
+                <option value="Outros">Outros</option>
+            </select>
+        </label>
+        <label>Renda Mensal: <input type="number" name="renda_mensal" min="0" required></label>
+        <label>Renda Anual: <input type="number" name="renda_anual" min="0" required></label>
+        <label>Idade: <input type="number" name="idade" min="0" required></label>
+        <label>Score de Crédito: <input type="number" name="score_credito" min="0" max="1000" required></label>
+        <label>Possui histórico de inadimplência:
+            <select name="possui_historico_inadimplencia" required>
+                <option value="" disabled selected>Selecione</option>
+                <option value="Sim">Sim</option>
+                <option value="Não">Não</option>
+            </select>
+        </label>
+        <label>Tempo no emprego atual (anos): <input type="number" name="tempo_emprego_atual" min="0" required></label>
+        <label>Valor solicitado: <input type="number" name="valor_solicitado" min="0" required></label>
+        <label>Prazo de pagamento (meses): <input type="number" name="prazo_pagamento" min="1" required></label>
+        <label>Possui outros empréstimos:
+            <select name="possui_outros_emprestimos" required>
+                <option value="" disabled selected>Selecione</option>
+                <option value="Sim">Sim</option>
+                <option value="Não">Não</option>
+            </select>
+        </label>
+        <label>Valor de outros empréstimos: <input type="number" name="valor_outros_emprestimos" min="0" required></label>
+
+        <!-- Botão de preenchimento fictício -->
+        <button type="button" onclick="preencherFicticio()">Preencher com dados fictícios</button>
+
+        <!-- Botão de envio -->
+        <button type="submit">Classificar</button>
+    </form>
+
+    <div id="resultado"></div>
+
+    <script>
+        document.getElementById('formulario').onsubmit = async function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const dados = {};
+            for (let el of form.elements) {
+                if (el.name) dados[el.name] = el.value;
+            }
+            ['renda_mensal','renda_anual','idade','score_credito','tempo_emprego_atual','valor_solicitado','prazo_pagamento','valor_outros_emprestimos'].forEach(
+                k => dados[k] = Number(dados[k])
+            );
+            const resp = await fetch('http://127.0.0.1:5000/classificar', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dados)
+            });
+
+            const resultado = await resp.json();
+            const divResultado = document.getElementById('resultado');
+            if (resultado.aprovado) {
+                divResultado.className = 'aprovado';
+                divResultado.innerHTML = `<b>Crédito aprovado!</b><br>Limite sugerido: <b>R$ ${resultado.limite.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</b>`;
+            } else {
+                divResultado.className = 'reprovado';
+                divResultado.innerHTML = `<b>Crédito NÃO aprovado.</b>`;
+            }
+        };
+
+        function preencherFicticio() {
+            const f = document.forms['formulario'];
+            f.trabalho.value = 'Funcionário de Empresa Privada';
+            f.renda_mensal.value = 5000;
+            f.renda_anual.value = 60000;
+            f.idade.value = 35;
+            f.score_credito.value = 750;
+            f.possui_historico_inadimplencia.value = 'Não';
+            f.tempo_emprego_atual.value = 4;
+            f.valor_solicitado.value = 15000;
+            f.prazo_pagamento.value = 24;
+            f.possui_outros_emprestimos.value = 'Sim';
+            f.valor_outros_emprestimos.value = 5000;
+        }
+    </script>
+</body>
+</html>

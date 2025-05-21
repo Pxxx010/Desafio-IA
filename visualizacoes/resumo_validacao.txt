@@ -1,0 +1,8 @@
+=== RESUMO DA VALIDAÇÃO ===
+Total de registros: 1000
+Variáveis categóricas: ['nome', 'trabalho', 'data_nascimento', 'possui_historico_inadimplencia', 'possui_outros_emprestimos', 'credito_aprovado']
+Variáveis numéricas: ['renda_mensal', 'renda_anual', 'idade', 'score_credito', 'tempo_emprego_atual', 'valor_solicitado', 'prazo_pagamento', 'valor_outros_emprestimos', 'valor_aprovado', 'idade_calculada']
+Taxa de aprovação: 49.40%
+Valores ausentes: 0
+Inconsistências entre aprovação e valor: 0
+Diferença média entre idade e idade calculada: 0.03
