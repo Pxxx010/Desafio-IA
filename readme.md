@@ -5,7 +5,7 @@ Este projeto consiste em uma API de classificação de crédito e um frontend we
 ## Estrutura
 
 - **api/**: Contém a API Flask, modelos treinados, dataset e scripts de treinamento.
-- **frontend/**: Contém o frontend web (HTML + JS) para interação com a API.
+- **./**: Contém o frontend web (HTML + JS) para interação com a API.
 - **Dado/**: Contém scripts e documentação para geração e validação do dataset.
 
 ---
